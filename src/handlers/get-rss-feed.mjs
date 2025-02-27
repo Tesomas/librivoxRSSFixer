@@ -1,6 +1,5 @@
-let Parser = require('rss-parser');
-let moment = require('moment');
-
+import moment from "moment";
+import parseFromString from "dom-parser"
 
 /**
  * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
@@ -13,23 +12,19 @@ export const getRssFeedHandler = async (event) => {
   console.info('received:', event);
  
   // Get id from pathParameters from APIGateway because of `/{url}` at template.yaml
-  const url = event.pathParameters.url;
-  getFeed(url).then((feed) => {
-    feed.items.forEach(item => {
-      item = fixFeedItem(item, increment);
+  const id = event.pathParameters.id;
+  return getFeed(id).then((feed) => {
+    let increment = 0;
+    console.error(feed);
+    feed.getElementsByName("item").forEach(item => {
+       fixFeedItem(item, increment++);
     })
+    return {
+      statusCode: 200,
+      body: "hello"
+    };
   })
 
-
- 
-  const response = {
-    statusCode: 200,
-    body: JSON.stringify(feed)
-  };
- 
-  // All log statements are written to CloudWatch
-  console.info(`response from: ${event.path} statusCode: ${response.statusCode} body: ${response.body}`);
-  return response;
 }
 
 function fixFeedItem(item, increment){
@@ -37,7 +32,12 @@ function fixFeedItem(item, increment){
   return item;
 }
 
-async function getFeed(url){
-  let parser = new Parser();
-  return await parser.parseURL(url);
+async function getFeed(id){
+  return fetch("https://librivox.org/rss/" + id).then((resp) => {
+    return resp.text();
+  }).then((resp) => {
+    console.error(resp);
+    return parseFromString(resp);
+  });
+
 }
