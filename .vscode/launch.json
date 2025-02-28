@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "type": "aws-sam",
+            "request": "direct-invoke",
+            "invokeTarget": {
+                "target": "code",
+                "lambdaHandler": "src/handlers/get-rss-feed.getRssFeedHandler",
+                "projectRoot": ""
+            },
+            "lambda": {
+                "runtime": "nodejs20.x"
+            },
+            "sam": {
+                "containerBuild": false,
+                "localArguments": [
+                    "-e",
+                    "c:\\Users\\rober\\workspace\\librivoxRSSFixer\\events\\event-get-feed-from-id.json"
+                ],
+                "skipNewImageCheck": false
+            },
+            "api": {
+                "httpMethod": "get"
+            },
+            "name": "localDebug"
+        }
+    ]
+}

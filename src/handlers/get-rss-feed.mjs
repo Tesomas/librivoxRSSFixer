@@ -1,6 +1,6 @@
+import DomParser from "dom-parser";
 import moment from "moment";
-import parseFromString from "dom-parser"
-
+import { XMLSerializer } from 'xmldom';
 /**
  * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
  */
@@ -37,8 +37,8 @@ async function getFeed(id){
   return fetch("https://librivox.org/rss/" + id).then((resp) => {
     return resp.text();
   }).then((resp) => {
-    console.error(resp);
-    return parseFromString(resp);
+    const parser = new DomParser();
+    return parser.parseFromString(resp);
   });
 
 }
