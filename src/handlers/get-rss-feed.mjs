@@ -19,9 +19,10 @@ export const getRssFeedHandler = async (event) => {
     feed.getElementsByName("item").forEach(item => {
        fixFeedItem(item, increment++);
     })
+    const serializer = new XMLSerializer();
     return {
       statusCode: 200,
-      body: "hello"
+      body: serializer.serializeToString(feed)
     };
   })
 
