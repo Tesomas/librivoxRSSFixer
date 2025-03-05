@@ -1,6 +1,5 @@
-import DomParser from "dom-parser";
 import moment from "moment";
-import { XMLSerializer } from 'xmldom';
+import { DOMParser, XMLSerializer } from 'xmldom';
 /**
  * A simple example includes a HTTP get method to get one item by id from a DynamoDB table.
  */
@@ -13,12 +12,26 @@ export const getRssFeedHandler = async (event) => {
  
   // Get id from pathParameters from APIGateway because of `/{url}` at template.yaml
   const id = event.pathParameters.id;
+  console.error("id: ", id);
   return getFeed(id).then((feed) => {
     let increment = 0;
-    console.error(feed);
-    feed.getElementsByName("item").forEach(item => {
-       fixFeedItem(item, increment++);
-    })
+    Array.from(feed.getElementsByTagName("item")).forEach(item => {
+      // Create new element
+      const newElement = feed.createElement('pubDate');
+
+      // Add text content
+      const textNode = feed.createTextNode(
+          moment("20000101", "YYYYMMDD")
+              .add(increment, 'days')
+              .format("ddd, DD MMM YYYY HH:mm:ss ZZ")
+      );
+      newElement.appendChild(textNode);
+
+      // Add to parent node
+      item.appendChild(newElement);
+      increment++;
+       })
+
     const serializer = new XMLSerializer();
     return {
       statusCode: 200,
@@ -28,17 +41,12 @@ export const getRssFeedHandler = async (event) => {
 
 }
 
-function fixFeedItem(item, increment){
-  item.pubDate = moment("20000101", "YYYYMMDD").add(increment, 'days').format("ddd, DD MMM YYYY HH:mm:ss ZZ");
-  return item;
-}
-
 async function getFeed(id){
   return fetch("https://librivox.org/rss/" + id).then((resp) => {
     return resp.text();
   }).then((resp) => {
-    const parser = new DomParser();
-    return parser.parseFromString(resp);
+    const parser = new DOMParser();
+    return parser.parseFromString(resp, "text/xml");
   });
 
 }

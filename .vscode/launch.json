@@ -9,7 +9,7 @@
                 "projectRoot": ""
             },
             "lambda": {
-                "runtime": "nodejs20.x"
+                "runtime": "nodejs22.x"
             },
             "sam": {
                 "containerBuild": false,
